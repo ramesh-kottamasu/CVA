@@ -33,9 +33,9 @@ export const DEFAULTS: TradeInput = {
   // IRS (at-par: r0 = theta = fixed_rate; CIR Feller: 2·0.5·0.05 = 0.05 > 0.01² = 0.0001)
   irs_direction:    'payer',
   irs_r0:           0.05,
-  irs_kappa:        0.5,
+  irs_kappa:        0.2,
   irs_theta:        0.05,
-  irs_vol:          0.01,
+  irs_vol:          0.02,
   irs_fixed_rate:   0.05,
   irs_payment_freq: 2,
 };
@@ -229,8 +229,8 @@ export function InputForm({ onSubmit, disabled }: Props) {
         ...prev,
         product: 'irs',
         sim_model: 'vasicek',
-        currency_pair: '5Y USD IRS',
-        maturity: 5.0,
+        currency_pair: '10Y USD IRS',
+        maturity: 10.0,
       }));
     } else {
       setValues((prev) => ({
