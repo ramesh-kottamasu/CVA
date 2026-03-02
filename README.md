@@ -149,6 +149,37 @@ Open [http://localhost:5173](http://localhost:5173). The Vite dev server proxies
 
 ---
 
+## Deployment
+
+The frontend is a static Vite build — ideal for Vercel. The backend is a persistent FastAPI/uvicorn server — ideal for Render or Railway (Vercel's Python serverless has a 10 s timeout, which is tight for Monte Carlo).
+
+### 1 — Deploy backend to Render
+
+1. Go to [render.com](https://render.com) → **New Web Service** → connect this repo
+2. Render auto-detects `render.yaml`; confirm settings:
+   - **Root directory**: `backend`
+   - **Build**: `pip install -r requirements.txt`
+   - **Start**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+3. Note your service URL, e.g. `https://cva-backend.onrender.com`
+4. In Render's **Environment** tab, set:
+   ```
+   ALLOWED_ORIGINS = https://your-app.vercel.app
+   ```
+
+### 2 — Deploy frontend to Vercel
+
+1. Go to [vercel.com](https://vercel.com) → **New Project** → import this repo
+2. Vercel reads `vercel.json` automatically — no extra config needed
+3. In **Environment Variables**, add:
+   ```
+   VITE_API_URL = https://cva-backend.onrender.com
+   ```
+4. Deploy. Done.
+
+> **Tip:** after Vercel assigns your production URL, go back to Render and update `ALLOWED_ORIGINS` to include it, then redeploy the backend.
+
+---
+
 ## API
 
 **`POST /api/exposure`**
