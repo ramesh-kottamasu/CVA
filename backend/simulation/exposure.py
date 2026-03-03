@@ -95,3 +95,54 @@ def compute_ene(mtm: np.ndarray) -> np.ndarray:
     """
     neg_exposure = np.maximum(-mtm, 0.0)
     return neg_exposure.mean(axis=1)
+
+
+def compute_collateralized_exposure(
+    mtm: np.ndarray,
+    time_grid: np.ndarray,
+    mpor_days: int = 10,
+    initial_margin: float = 0.0,
+    vm_threshold: float = 0.0,
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Apply VM and IM collateral to the MtM matrix.
+
+    At each time step i, VM held from the counterparty is the MtM at step (i-L)
+    (the last margin call, L steps ago). Net positive exposure = MtM - VM_held - IM.
+
+    Args:
+        mtm:            shape (num_steps+1, num_paths)
+        time_grid:      shape (num_steps+1,)
+        mpor_days:      Margin Period of Risk in business days
+        initial_margin: IM buffer (domestic currency units)
+        vm_threshold:   Minimum Transfer Amount for VM (currency units)
+
+    Returns:
+        pos_exposure: shape (num_steps+1, num_paths) — net positive exposure per path
+        neg_exposure: shape (num_steps+1, num_paths) — net negative exposure per path
+    """
+    T = time_grid[-1]
+    num_steps = len(time_grid) - 1
+    dt = T / num_steps
+
+    # Convert MPOR (business days) to simulation steps
+    L = max(1, round(mpor_days / 252.0 / dt))
+    L = min(L, num_steps)
+
+    # If MPOR covers the entire simulation, no VM is ever received
+    if L >= num_steps:
+        pos = np.maximum(mtm - initial_margin, 0.0)
+        neg = np.maximum(-mtm - initial_margin, 0.0)
+        return pos, neg
+
+    # VM held from cpty: based on MtM at t_{i-L} (when we were in-the-money)
+    vm_held = np.zeros_like(mtm)
+    vm_held[L:] = np.maximum(mtm[:-L] - vm_threshold, 0.0)
+
+    # VM we posted to cpty: based on MtM at t_{i-L} (when they were in-the-money)
+    vm_posted = np.zeros_like(mtm)
+    vm_posted[L:] = np.maximum(-mtm[:-L] - vm_threshold, 0.0)
+
+    pos = np.maximum(mtm - vm_held - initial_margin, 0.0)
+    neg = np.maximum(-mtm - vm_posted - initial_margin, 0.0)
+    return pos, neg

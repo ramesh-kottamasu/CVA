@@ -114,6 +114,11 @@ export function ExposureChart({ data }: Props) {
         <span className="chart-title">
           Exposure Profile — {data.currency_pair}
           <span className="chart-model-tag">{MODEL_LABEL[data.sim_model] ?? data.sim_model}</span>
+          {data.collateralized && (
+            <span className="chart-model-tag" style={{ background: 'rgba(34,211,238,0.15)', color: '#22d3ee' }}>
+              CSA · MPOR {data.mpor_days}bd
+            </span>
+          )}
         </span>
         <div className="chart-legend">
           <div className="legend-item">

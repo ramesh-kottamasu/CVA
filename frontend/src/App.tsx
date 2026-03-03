@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useExposure } from './hooks/useExposure';
 import { InputForm } from './components/InputForm';
 import { ExposureChart } from './components/ExposureChart';
@@ -6,10 +6,17 @@ import { SummaryPanel } from './components/SummaryPanel';
 import { SensitivitiesPanel } from './components/SensitivitiesPanel';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { DEFAULTS } from './components/InputForm';
+import type { TradeInput } from './types/api';
 import './App.css';
 
 export default function App() {
   const { data, loading, error, calculate } = useExposure();
+  const [lastTrade, setLastTrade] = useState<TradeInput>(DEFAULTS);
+
+  function handleSubmit(trade: TradeInput) {
+    setLastTrade(trade);
+    calculate(trade);
+  }
 
   // Auto-calculate with defaults on first load
   useEffect(() => { calculate(DEFAULTS); }, []);
@@ -28,7 +35,7 @@ export default function App() {
 
       <div className="app-body">
         <aside className="sidebar">
-          <InputForm onSubmit={calculate} disabled={loading} />
+          <InputForm onSubmit={handleSubmit} disabled={loading} />
         </aside>
 
         <main className="results">
@@ -43,7 +50,7 @@ export default function App() {
 
           {!loading && !error && data && (
             <>
-              <SummaryPanel data={data} />
+              <SummaryPanel data={data} trade={lastTrade} />
               <ExposureChart data={data} />
               <SensitivitiesPanel data={data} />
             </>

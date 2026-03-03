@@ -54,6 +54,12 @@ class TradeInput(BaseModel):
     irs_fixed_rate:  float = Field(0.05,       description="Fixed leg rate K")
     irs_payment_freq: int  = Field(2,    gt=0, description="Payments per year (2 = semi-annual)")
 
+    # ── Collateral / Margining (CSA) ─────────────────────────────────────────
+    collateralized: bool  = Field(False, description="Trade under CSA/margin agreement")
+    mpor_days:      int   = Field(10,  ge=1, le=250, description="Margin Period of Risk (business days)")
+    initial_margin: float = Field(0.0, ge=0.0,       description="Initial Margin (domestic currency units)")
+    vm_threshold:   float = Field(0.0, ge=0.0,       description="VM minimum transfer amount (currency units)")
+
     @model_validator(mode="after")
     def check_models(self) -> "TradeInput":
         FX_MODELS  = {"gbm", "heston", "merton"}
@@ -118,3 +124,5 @@ class ExposureResponse(BaseModel):
     sim_model: str
     product: str
     sensitivities: list[Sensitivity] = []
+    collateralized: bool = False
+    mpor_days:      int  = 10

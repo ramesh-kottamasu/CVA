@@ -42,6 +42,12 @@ export interface TradeInput {
   irs_vol:          number;
   irs_fixed_rate:   number;
   irs_payment_freq: number;
+
+  // Collateral / CSA
+  collateralized:  boolean;
+  mpor_days:       number;
+  initial_margin:  number;
+  vm_threshold:    number;
 }
 
 export interface Sensitivity {
@@ -68,6 +74,8 @@ export interface ExposureResponse {
   sim_model: string;
   product: string;
   sensitivities: Sensitivity[];
+  collateralized: boolean;
+  mpor_days: number;
 }
 
 /** Flattened row for Recharts */

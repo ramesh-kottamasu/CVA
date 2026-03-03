@@ -6,7 +6,7 @@ from simulation.heston import generate_heston_paths
 from simulation.merton import generate_merton_paths
 from simulation.vasicek import generate_vasicek_paths
 from simulation.cir import generate_cir_paths
-from simulation.exposure import compute_mtm, compute_exposure_profile, compute_ene
+from simulation.exposure import compute_mtm, compute_exposure_profile, compute_ene, compute_collateralized_exposure
 from simulation.irs_exposure import compute_irs_mtm
 from simulation.cva import compute_epe, compute_cva, compute_dva
 
@@ -112,8 +112,18 @@ def _run(trade: TradeInput):
             mtm = -mtm
 
     # ── Step 3: Exposure profiles ────────────────────────────────────────────
-    ee, pfe = compute_exposure_profile(mtm, trade.pfe_confidence)
-    ene = compute_ene(mtm)
+    if trade.collateralized:
+        pos_mtm, neg_mtm = compute_collateralized_exposure(
+            mtm, time_grid,
+            mpor_days=trade.mpor_days,
+            initial_margin=trade.initial_margin,
+            vm_threshold=trade.vm_threshold,
+        )
+        ee, pfe = compute_exposure_profile(pos_mtm, trade.pfe_confidence)
+        ene     = compute_ene(neg_mtm)
+    else:
+        ee, pfe = compute_exposure_profile(mtm, trade.pfe_confidence)
+        ene     = compute_ene(mtm)
     return time_grid, ee, pfe, ene
 
 
@@ -250,4 +260,6 @@ def calculate_exposure(trade: TradeInput) -> ExposureResponse:
         sim_model=trade.sim_model,
         product=trade.product,
         sensitivities=sensitivities,
+        collateralized=trade.collateralized,
+        mpor_days=trade.mpor_days,
     )

@@ -838,9 +838,129 @@
 }
 
 /* ═══════════════════════════════════════════
+   Collateral status bar
+   ═══════════════════════════════════════════ */
+.collateral-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  margin-top: 0.5rem;
+  border-left: 3px solid #22d3ee;
+  background: rgba(34, 211, 238, 0.05);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.75rem;
+}
+
+.collateral-status-label {
+  color: #22d3ee;
+  font-weight: 600;
+}
+
+.collateral-status-detail {
+  color: #8fa3bf;
+}
+
+/* ═══════════════════════════════════════════
    Animations
    ═══════════════════════════════════════════ */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   Mobile (≤ 640px)
+   ═══════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* ── Layout: stack form above results ── */
+  .app-layout {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .app-body {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  /* ── Header: hide secondary copy ── */
+  .header-divider,
+  .header-sub,
+  .header-tag { display: none; }
+
+  .app-header {
+    padding: 0 1rem;
+    gap: 0.75rem;
+  }
+
+  /* ── Sidebar: full width, flows inline ── */
+  .sidebar {
+    width: 100%;
+    flex-shrink: 1;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow-y: visible;
+    max-height: none;
+  }
+
+  /* ── Results: full width, no inner scroll ── */
+  .results {
+    overflow-y: visible;
+    padding: 1rem 0.75rem;
+    gap: 0.875rem;
+  }
+
+  /* ── Metric grid: 2-column ── */
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .metric-val {
+    font-size: 1.05rem;
+  }
+
+  .metric-card {
+    padding: 0.65rem 0.75rem;
+  }
+
+  /* ── Chart: shorter, stacked header ── */
+  .chart-panel {
+    min-height: 0;
+    padding: 0.75rem 0.75rem 0.5rem;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .chart-legend {
+    gap: 0.65rem;
+  }
+
+  /* ── Sensitivities: hide Bump column ── */
+  .col-bump,
+  .sens-bump-cell { display: none; }
+
+  .sens-panel {
+    padding: 0.75rem;
+  }
+
+  .sens-note {
+    font-size: 0.6rem;
+  }
+
+  /* ── Form fields: narrower label ── */
+  .field-label {
+    flex: 0 0 95px;
+    font-size: 0.7rem;
+  }
+
+  .model-btn-label { font-size: 0.7rem; }
+  .model-btn-sub   { font-size: 0.58rem; }
 }

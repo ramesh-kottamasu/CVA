@@ -38,6 +38,11 @@ export const DEFAULTS: TradeInput = {
   irs_vol:          0.02,
   irs_fixed_rate:   0.05,
   irs_payment_freq: 2,
+  // Collateral
+  collateralized:  false,
+  mpor_days:       10,
+  initial_margin:  0,
+  vm_threshold:    0,
 };
 
 /**
@@ -58,6 +63,11 @@ const VOL_VARIANCE_FIELDS = new Set<keyof TradeInput>([
   'heston_v0',
   'heston_theta',
 ]);
+
+/**
+ * INT_FIELDS: stored and displayed as integers (no unit conversion).
+ */
+const INT_FIELDS = new Set<keyof TradeInput>(['mpor_days']);
 
 interface Props {
   onSubmit: (trade: TradeInput) => void;
@@ -162,6 +172,28 @@ function SectionHeader({ label }: { label: string }) {
   return <div className="section-heading">{label}</div>;
 }
 
+// ── Collateral toggle ─────────────────────────────────────────────────────────
+
+function CollateralToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="model-picker" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+      {([{ v: false, label: 'None', sub: 'Bilateral' }, { v: true, label: 'CSA', sub: 'Margined' }] as const).map(
+        ({ v, label, sub }) => (
+          <button
+            key={String(v)}
+            type="button"
+            className={`model-btn${value === v ? ' model-btn--active' : ''}`}
+            onClick={() => onChange(v)}
+          >
+            <span className="model-btn-label">{label}</span>
+            <span className="model-btn-sub">{sub}</span>
+          </button>
+        )
+      )}
+    </div>
+  );
+}
+
 // ── Form ─────────────────────────────────────────────────────────────────────
 
 export function InputForm({ onSubmit, disabled }: Props) {
@@ -189,6 +221,8 @@ export function InputForm({ onSubmit, disabled }: Props) {
       stored = (raw / 100) ** 2;
     } else if (PCT_FIELDS.has(key)) {
       stored = raw / 100;
+    } else if (INT_FIELDS.has(key)) {
+      stored = Math.round(raw);
     }
     setValues((prev) => ({ ...prev, [name]: stored }));
   }
@@ -247,6 +281,10 @@ export function InputForm({ onSubmit, disabled }: Props) {
     setValues((prev) => ({ ...prev, sim_model: m }));
   }
 
+  function handleCollateralChange(v: boolean) {
+    setValues((prev) => ({ ...prev, collateralized: v }));
+  }
+
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     onSubmit(values);
@@ -257,6 +295,20 @@ export function InputForm({ onSubmit, disabled }: Props) {
 
   return (
     <form className="input-form" onSubmit={handleSubmit}>
+
+      {/* ── Collateral (both products) ── */}
+      <div className="form-section">
+        <SectionHeader label="Collateral" />
+        <CollateralToggle value={values.collateralized} onChange={handleCollateralChange} />
+        {values.collateralized && (
+          <>
+            <Field label="MPOR" name="mpor_days" value={iv('mpor_days')}
+                   onChange={handleChange} onBlur={handleBlur} unit="days" />
+            <Field label="Init Margin" name="initial_margin" value={iv('initial_margin')}
+                   onChange={handleChange} onBlur={handleBlur} unit="USD" />
+          </>
+        )}
+      </div>
 
       {/* ── Product selector ── */}
       <div className="form-section">

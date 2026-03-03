@@ -1,6 +1,6 @@
-import type { ExposureResponse } from '../types/api';
+import type { ExposureResponse, TradeInput } from '../types/api';
 
-interface Props { data: ExposureResponse; }
+interface Props { data: ExposureResponse; trade: TradeInput; }
 
 function fmtMoney(v: number): string {
   const abs = Math.abs(v);
@@ -22,7 +22,7 @@ function fmtBps(v: number, notional: number): string {
   return `${fmtNum((v / notional) * 10_000, 1)} bps`;
 }
 
-export function SummaryPanel({ data }: Props) {
+export function SummaryPanel({ data, trade }: Props) {
   const bcvaPositive = data.bcva >= 0;
 
   return (
@@ -76,6 +76,15 @@ export function SummaryPanel({ data }: Props) {
         </div>
         <div className="metric-desc">Trade tenor<br/>PFE @ {(data.pfe_confidence * 100).toFixed(0)}th pctile</div>
       </div>
+      {data.collateralized && (
+        <div className="collateral-status-bar">
+          <span className="collateral-status-label">Margined (CSA)</span>
+          <span className="collateral-status-detail">
+            MPOR {data.mpor_days} bd
+            {trade.initial_margin > 0 ? ` · IM ${fmtMoney(trade.initial_margin)}` : ''}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
