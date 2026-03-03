@@ -9,12 +9,16 @@ import { DEFAULTS } from './components/InputForm';
 import type { TradeInput } from './types/api';
 import './App.css';
 
+type Tab = 'input' | 'results';
+
 export default function App() {
   const { data, loading, error, calculate } = useExposure();
   const [lastTrade, setLastTrade] = useState<TradeInput>(DEFAULTS);
+  const [activeTab, setActiveTab] = useState<Tab>('results');
 
   function handleSubmit(trade: TradeInput) {
     setLastTrade(trade);
+    setActiveTab('results'); // switch immediately so spinner shows
     calculate(trade);
   }
 
@@ -33,7 +37,26 @@ export default function App() {
         <span className="header-tag">Monte Carlo · Antithetic · Hazard Rate</span>
       </header>
 
-      <div className="app-body">
+      {/* Mobile-only tab bar */}
+      <div className="mobile-tab-bar">
+        <button
+          className={`mobile-tab${activeTab === 'input' ? ' mobile-tab--active' : ''}`}
+          onClick={() => setActiveTab('input')}
+        >
+          Parameters
+        </button>
+        <button
+          className={`mobile-tab${activeTab === 'results' ? ' mobile-tab--active' : ''}`}
+          onClick={() => setActiveTab('results')}
+        >
+          Results
+          {activeTab === 'input' && (data || loading) && (
+            <span className="mobile-tab-badge" />
+          )}
+        </button>
+      </div>
+
+      <div className="app-body" data-tab={activeTab}>
         <aside className="sidebar">
           <InputForm onSubmit={handleSubmit} disabled={loading} />
         </aside>
