@@ -515,6 +515,8 @@
   animation: fade-up 0.4s ease 0.25s both;
   flex: 1;
   min-height: 320px;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-header {
@@ -962,9 +964,11 @@
 
   .metric-val { font-size: 1.05rem; }
 
-  /* ── Chart: stacked header, compact ── */
+  /* ── Chart: explicit height, stacked header ── */
   .chart-panel {
+    flex: none;
     min-height: 0;
+    height: 300px;
     padding: 0.75rem 0.75rem 0.5rem;
   }
 

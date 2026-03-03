@@ -136,7 +136,7 @@ export function ExposureChart({ data }: Props) {
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height="100%" minHeight={220}>
         <LineChart data={chartData} margin={{ top: 4, right: 16, left: 8, bottom: 8 }}>
           <CartesianGrid
             stroke="#1c2a42"
